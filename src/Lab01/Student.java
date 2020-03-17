@@ -1,3 +1,4 @@
+package Lab01;
 
 public class Student {
     private String firstName;
