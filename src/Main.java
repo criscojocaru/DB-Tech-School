@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 
 public class Main {
 
-    public static void listFilesFromFolder() {
-        File folder = new File("F:\\DB Tech School\\Facultate");
+    public static void listFilesFromFolder(String pathName) {
+        File folder = new File(pathName);
         String[] files = folder.list();
 
         for (String file : files) {
@@ -73,7 +73,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        listFilesFromFolder();
+        listFilesFromFolder("Facultate\\");
         System.out.println();
 
         List<Student> students = new ArrayList<>();
