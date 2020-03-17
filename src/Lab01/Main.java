@@ -3,13 +3,16 @@ package Lab01;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Main {
 
@@ -19,28 +22,6 @@ public class Main {
 
         for (String file : files) {
             System.out.println(file);
-        }
-    }
-
-    public static void processStudents(List<Student> students, Stream<String> lines) {
-        List<String> content = lines.collect(Collectors.toList());
-
-        for (String line : content) {
-            String[] values = line.split(",");
-            students.add(new Student(values[0], values[1], values[2],
-                    Integer.valueOf(values[3]), Double.valueOf(values[4])));
-        }
-
-        content.forEach(x -> System.out.println(x));
-    }
-
-    public static void readFromFile(List<Student> students, String firstPath) {
-        try {
-            Stream<String> lines = Files.lines(Paths.get(firstPath));
-            processStudents(students, lines);
-
-        } catch (IOException e) {
-            System.err.format("IOException: %s%n", e);
         }
     }
 
@@ -74,7 +55,7 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
         listFilesFromFolder("Facultate\\");
         System.out.println();
 
@@ -83,14 +64,22 @@ public class Main {
         String firstPath = "Facultate\\studenti-automatica.txt";
         String secondPath = "Facultate\\studenti-calculatoare.txt";
 
-        readFromFile(students, firstPath);
-        readFromFile(students, secondPath);
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        List<Future<List<Student>>> result = new ArrayList<>();
 
-        System.out.println();
+        result.add(executorService.submit(new ReadStudents(firstPath)));
+        result.add(executorService.submit(new ReadStudents(secondPath)));
+
+        for (Future<List<Student>> listFuture : result) {
+            students.addAll(listFuture.get());
+        }
+
+        executorService.shutdown();
 
         sortStudents(students);
 
         String outputFile = "studenti.txt";
         writeStudentsToFile(students, outputFile);
+
     }
 }
