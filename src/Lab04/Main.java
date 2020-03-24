@@ -20,10 +20,10 @@ public class Main {
                     String key = getSerializedKey(field);
                     String value = String.valueOf(field.get(object));
                     int lengthToTrimString = field.getAnnotation(JsonField.class).lengthToTrimString();
-                    int trimmedValue = value.length() - lengthToTrimString;
 
-                    if (lengthToTrimString != 255) {
-                        jsonElements.put(key, String.valueOf(trimmedValue));
+                    if(value.length() > lengthToTrimString) {
+                        String trimmedValue = value.substring(0, lengthToTrimString);
+                        jsonElements.put(key, trimmedValue);
                     } else {
                         jsonElements.put(key, value);
                     }
@@ -39,8 +39,8 @@ public class Main {
     private static String toJsonString(Map<String, String> jsonMap) {
         String elementsString = jsonMap.entrySet()
                 .stream()
-                .map(entry -> "\""  + entry.getKey() + "\":\"" + entry.getValue() + "\"")
-                .collect(Collectors.joining(","));
+                .map(entry -> "\""  + entry.getKey() + "\": \"" + entry.getValue() + "\"")
+                .collect(Collectors.joining(", "));
         return "{" + elementsString + "}";
     }
 
@@ -58,6 +58,6 @@ public class Main {
         Product product = new Product(100, "Coca-Cola", "A tasty delicious drink", "Carrefour");
 
         String json = toJson(product);
-        System.out.println(json); // { "code": 100, "name": "Coca-Cola", "description": 3}
+        System.out.println(json); // {"code": "100", "name": "Coca-Cola", "description": "A tasty delicious dr"}
     }
 }
